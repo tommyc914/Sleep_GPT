@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langchain = "==0.1.8"
+tiktoken = "*"
+notebook = "*"
+langchain-community = "==0.0.21"
+langchainhub = "*"
+langchain-openai = "*"
+chromadb = "*"
+bs4 = "*"
+esprima = "*"
+tree-sitter = "*"
+tree-sitter-languages = "*"
+chardet = "*"
+flask = "*"
+line-bot-sdk = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
