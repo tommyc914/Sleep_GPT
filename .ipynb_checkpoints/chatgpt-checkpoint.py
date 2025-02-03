@@ -3,6 +3,7 @@ import openai
 import os
 import sys
 import constant
+import openai
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
@@ -14,7 +15,7 @@ from langchain_core.runnables import RunnablePassthrough
 
 
 warnings.filterwarnings("ignore")
-openai.api_key = os.getenv("OPENAI_API_KEY")
+os.environ["OPENAI_API_KEY"]=constant.APIKEY
 
 
 
@@ -44,10 +45,21 @@ rag_chain = (
 query=sys.argv[1]
 
 response = rag_chain.invoke(query)
-print(response)
 
-def GPT_response(query):
-    response = rag_chain.invoke(query)
-    return response
+if response == "我不知道。":
+    response_1 =  openai.chat.completions.create(model="gpt-4",
+    messages=[
+        {
+            "role": "user",
+            "content": query,
+        },
+    ],stream=True,
+)
+    for chunk in response_1:
+        print(chunk.choices[0].delta.content or "", end="")
+else:
+    for chunk in rag_chain.stream(query):
+        print (chunk, end="", flush=True)
+
 
     
