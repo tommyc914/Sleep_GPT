@@ -33,12 +33,10 @@ vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbedd
 retriever = vectorstore.as_retriever(k=4)
 llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=.4)
 
-contextualize_q_system_prompt = """在給定的聊天歷史與用戶的最新問題回答問題，\
-該問題依賴於上下文的內容，請精準捕捉上下文關係，\
-透過上下文關係，將問題修改為能理解的形式並回答，\
-若問題或對話脫離原先上下文內容，仍有獨立理解並回答該問題的能力。\
-若無法合理的回答用戶問題, ，即超出直接檢索的範圍，請利用自身的理解與知識生成能力回答，\
-並確保回答是基於深入理解問題核心的結果，以給予更順暢的聊天過程。\
+contextualize_q_system_prompt = """該問題依賴於上下文的內容，請精準捕捉上下文關係，\
+透過上下文關係，將問題修改為能理解的形式，並補全代詞、模糊語意或上下文資訊，使問題更清楚。\
+若問題或對話脫離原先上下文內容，仍有獨立理解該問題的能力。\
+若問題超出資料範圍，請仍以模型的理解能力重寫為清楚而完整的獨立問題。\
 """
 
 contextualize_q_prompt = ChatPromptTemplate.from_messages(
@@ -50,12 +48,12 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages(
 )
 contextualize_q_chain = contextualize_q_prompt | llm | StrOutputParser()
 
-qa_system_prompt = """你是一個專業的睡眠治療師，可以從資料中的信息，來準確地提供專業睡眠建議。\
-你可以記住對話並根據對話的上下文，來流暢地回答用戶的問題，\
+qa_system_prompt = """你是一個專業的睡眠治療師，可以從資料中（context）的信息，來準確地提供專業睡眠建議。\
+你是根據對話的上下文，來流暢地回答用戶的問題，\
 若無法從檢索信息找到合理回答，利用自身的理解與知識生成能力回答，\
-回答要清楚扼要且合理，並契合用戶問題，回答不超過十五句話，請給予更完整清晰的回答。\
-當提到更多、其他，請承接前一個用戶問題的內容回答，\
-所有回答皆使用繁體中文，除非用戶提及特定人物，不然回答不要包含任何人名。\
+回答要清楚扼要且合理，並契合用戶問題。\
+當提到更多、其他，請承接前文語意延伸，\
+所有回答皆使用繁體中文，除非用戶提及特定人物，不然不要加入任何人名。\
 
 {context}"""
 qa_prompt = ChatPromptTemplate.from_messages(
